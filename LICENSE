@@ -1,3 +1,43 @@
+RAN OPENHANDS — LICENSE
+=======================
+
+This repository contains two bodies of work under two licenses: the RAN-authored
+modifications and additions (proprietary), and the upstream OpenHands Agent
+Canvas software they are built on (MIT). Read both parts before using, copying,
+or distributing this software.
+
+--------------------------------------------------------------------------------
+PART 1 — RAN PROPRIETARY NOTICE (modifications and additions)
+--------------------------------------------------------------------------------
+
+Copyright (c) 2026 RAN (Robotic AI Ninja). All rights reserved.
+
+The modifications and additions made to this software after 2026-09-19 (the RAN
+ecosystem port fork date) are proprietary. Unauthorized copying, distribution, or
+modification of this new code is strictly prohibited.
+
+The proprietary material covered by this notice includes all RAN-authored work in
+this repository made after the fork date, including but not limited to:
+
+  - RAN port branding and port identity (RAN OpenHands / ran-openhands)
+  - RAN port packaging
+  - RAN port documentation (see NOTICE for the file list)
+  - any RAN-authored source changes made after the fork date
+
+No license, express or implied, is granted to this proprietary material except by
+separate written permission from RAN (Robotic AI Ninja). Unauthorized use,
+reproduction, distribution, sublicensing, or modification of it is prohibited.
+
+Scope: this Part applies only to the RAN-authored modifications and additions. It
+does not restrict, reduce, or replace any right granted by the MIT License in
+Part 2 for the upstream OpenHands Agent Canvas software. Those upstream portions
+remain governed by Part 2, and the upstream copyright and permission notice in
+Part 2 is retained in full as the MIT License requires.
+
+--------------------------------------------------------------------------------
+PART 2 — UPSTREAM LICENSE (OpenHands Agent Canvas)
+--------------------------------------------------------------------------------
+
 The MIT License (MIT)
 
 Copyright © 2025 OpenHands contributors
@@ -19,20 +59,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-RAN OpenHands port notice
-=========================
-
-This repository is RAN OpenHands (`ran-openhands`) — the RAN (Robotic AI Ninja)
-ecosystem port of OpenHands Agent Canvas.
-
-Copyright © 2026 RAN (Robotic AI Ninja) — port branding, port packaging, and
-port documentation authored in this repository.
-
-The MIT License and the copyright notice above are retained in full, as the MIT
-License requires, and apply to the upstream OpenHands Agent Canvas software
-carried in this repository. RAN-authored material in this repository is
-distributed under the same MIT terms. Upstream attribution details are recorded
-in NOTICE.

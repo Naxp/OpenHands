@@ -1,18 +1,31 @@
 RAN OpenHands — upstream attribution notice
 ===========================================
 
-RAN OpenHands (ran-openhands) is a port of OpenHands Agent Canvas.
+RAN OpenHands (ran-openhands) is a port of OpenHands Agent Canvas, published at
+https://github.com/Naxp/OpenHands.
 
   Upstream project : OpenHands Agent Canvas
   Upstream source  : https://github.com/OpenHands/OpenHands
   Upstream license : MIT — Copyright © 2025 OpenHands contributors
   Port base commit : a07364828c8f202e7745c6bce3dcef3915ae7ac1 (upstream main)
+  Port fork date   : 2026-09-19
 
-This repository carries upstream OpenHands Agent Canvas source, the upstream MIT
-license and copyright notice (see LICENSE), and RAN-authored port branding,
-packaging, and documentation. The upstream notice is preserved verbatim because
-the MIT License requires it to be included in all copies or substantial portions
-of the software.
+Licensing of this repository
+----------------------------
+
+This repository carries two bodies of work under two licenses (see LICENSE):
+
+  1. RAN-authored modifications and additions made after the fork date —
+     proprietary, Copyright © 2026 RAN (Robotic AI Ninja), all rights reserved.
+     Unauthorized copying, distribution, or modification is prohibited.
+
+  2. Upstream OpenHands Agent Canvas software — MIT, Copyright © 2025 OpenHands
+     contributors. The upstream copyright notice and permission notice are
+     preserved verbatim in LICENSE Part 2, because the MIT License requires the
+     notice to be included in all copies or substantial portions of the software.
+
+The upstream identifiers listed below remain in the codebase and are not RAN
+branding; those portions stay under the upstream MIT terms.
 
 Upstream identifiers that remain in the codebase
 ------------------------------------------------
@@ -33,8 +46,8 @@ intentionally unchanged so the port stays buildable and can sync with upstream:
 RAN-authored material in this repository
 ----------------------------------------
 
-  README.md, README.windows.md, docs/README.md, LICENSE (port notice section),
-  this NOTICE, and docs/operations/RAN_OPENHANDS_PORT.md.
+  README.md, README.windows.md, docs/README.md, LICENSE (Part 1 and the port
+  framing), this NOTICE, and docs/operations/RAN_OPENHANDS_PORT.md.
 
 Third-party dependencies bundled or fetched by this project (see package.json
 and package-lock.json) remain under their own licenses.

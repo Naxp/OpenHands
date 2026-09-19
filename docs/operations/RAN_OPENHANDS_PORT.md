@@ -4,22 +4,22 @@
 
 ## What this port is
 
-`ran-openhands` is the RAN (Robotic AI Ninja) ecosystem port of OpenHands Agent Canvas, published privately at `https://github.com/Naxp/ran-openhands`.
+`ran-openhands` is the RAN (Robotic AI Ninja) ecosystem port of OpenHands Agent Canvas, published at `https://github.com/Naxp/OpenHands` (a fork of `OpenHands/OpenHands`, set to private).
 
 - The application code is upstream OpenHands Agent Canvas, carried at upstream `main`.
-- RAN-authored material is limited to port branding, port packaging, and port documentation.
-- Upstream's MIT license and copyright notice are retained in full (`LICENSE`); upstream attribution is recorded in `NOTICE`.
-- The port base commit at first push was upstream `main` = `a07364828c8f202e7745c6bce3dcef3915ae7ac1` (2026-09-18).
+- RAN-authored material is limited to port branding, port packaging, port documentation, and RAN source changes made after the fork date.
+- Licensing is split, and both parts are in `LICENSE`: RAN modifications and additions after the fork date are **proprietary** (Copyright © 2026 RAN, all rights reserved); upstream OpenHands Agent Canvas is **MIT** (Copyright © 2025 OpenHands contributors) with its notice retained verbatim. Upstream attribution is recorded in `NOTICE`.
+- Port fork date: **2026-09-19**. Port base commit: upstream `main` = `a07364828c8f202e7745c6bce3dcef3915ae7ac1` (2026-09-18).
 
 ## What was rebranded
 
 | File | RAN-authored change |
 |---|---|
-| `README.md` | Retitled to RAN OpenHands; RAN framing, port scope, port-first quickstart, upstream/license section, repository-boundary table extended with the port row. |
+| `README.md` | Retitled to RAN OpenHands; RAN framing, port scope, port-first quickstart, split-license section, repository-boundary table extended with the port row. |
 | `README.windows.md` | Retitled scope to RAN OpenHands; adds the from-source Windows route; labels the published container image as upstream. |
 | `docs/README.md` | Docs index title/entry point for the port. |
-| `LICENSE` | Upstream MIT text and copyright retained verbatim; RAN port notice appended below it. |
-| `NOTICE` | New. Upstream attribution, port base commit, and the list of upstream identifiers intentionally left unchanged. |
+| `LICENSE` | Part 1 RAN proprietary notice above Part 2 upstream MIT; the upstream MIT text and copyright notice are retained verbatim as required. |
+| `NOTICE` | New. Upstream attribution, port base commit and fork date, licensing split, and the list of upstream identifiers intentionally left unchanged. |
 
 ## What was deliberately NOT rebranded
 
@@ -37,24 +37,24 @@ Upstream identifiers that the build, runtime, and upstream sync depend on stay a
 
 | Remote | URL | Use |
 |---|---|---|
-| `origin` | `https://github.com/OpenHands/OpenHands.git` | **Read/fetch only** — this is upstream. Never push port commits here. |
-| `ran` | `https://github.com/Naxp/ran-openhands.git` | Port write path. Push port commits here through the `Naxp` GitHub identity. |
+| `origin` | `https://github.com/Naxp/OpenHands.git` | Port write path (RAN fork). Push port commits here through the `Naxp` GitHub identity. |
+| `upstream` | `https://github.com/OpenHands/OpenHands.git` | **Read/fetch only** — upstream. Never push port commits here. |
 
-Do not replace, repurpose, or push through upstream `origin`. Port commits go to `ran`.
+Port commits must never be pushed to `upstream`.
 
 ## Syncing with upstream
 
 The rebranded files are also upstream trackers, so they are the **expected and only** conflict surface when syncing. Everything else fast-forwards cleanly.
 
 ```sh
-git fetch origin                       # upstream main
-git rebase origin/main                 # replays port commits on top of upstream
+git fetch upstream                     # upstream main
+git rebase upstream/main               # replays port commits on top of upstream
 # conflicts, if any, appear in: README.md, README.windows.md, docs/README.md, LICENSE
 ```
 
-On a conflict, keep upstream's technical content changes and re-apply the RAN branding framing on top — the rebrand is additive (title, port scope, attribution), so upstream's substantive edits should win inside each section, while the RAN title/attribution/port sections are preserved.
+On a conflict, keep upstream's technical content changes and re-apply the RAN branding framing on top — the rebrand is additive (title, port scope, attribution, license split), so upstream's substantive edits should win inside each section, while the RAN title, port sections, and license parts are preserved.
 
-After any sync, re-verify that `LICENSE` still carries the upstream MIT notice verbatim before pushing.
+After any sync, re-verify that `LICENSE` Part 2 still carries the upstream MIT notice verbatim before pushing.
 
 ## Local checkouts
 

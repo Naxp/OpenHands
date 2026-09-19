@@ -37,9 +37,9 @@ Feature links above point at the [upstream OpenHands documentation](https://docs
 
 ## What this port is
 
-- This repository is the **RAN ecosystem port** of OpenHands Agent Canvas, published privately as `ran-openhands`.
+- This repository (`Naxp/OpenHands`) is the **RAN ecosystem port** of OpenHands Agent Canvas, branded `ran-openhands`.
 - The application code is upstream OpenHands Agent Canvas, carried at upstream `main`. RAN branding, packaging, and RAN ecosystem integration live in this repository rather than in the upstream project.
-- The upstream MIT license and copyright notices are retained in [LICENSE](./LICENSE) and [NOTICE](./NOTICE). See [Upstream and license](#upstream-and-license).
+- RAN-authored modifications and additions are proprietary; the upstream MIT license covering OpenHands Agent Canvas is retained in full. Both are in [LICENSE](./LICENSE), with attribution in [NOTICE](./NOTICE). See [Upstream and license](#upstream-and-license).
 - Upstream sync and port conventions are recorded in [`docs/operations/RAN_OPENHANDS_PORT.md`](./docs/operations/RAN_OPENHANDS_PORT.md).
 
 ## Quickstart
@@ -58,8 +58,8 @@ Notably, you can run the backend in _multiple different environments_, and switc
 **Prerequisites**: Node.js 24 or later (as declared by `engines.node` in `package.json`), `npm`, `uv` (for running the agent server via `uvx`)
 
 ```sh
-git clone https://github.com/Naxp/ran-openhands.git
-cd ran-openhands
+git clone https://github.com/Naxp/OpenHands.git
+cd OpenHands
 npm install
 npm run dev
 ```
@@ -120,7 +120,7 @@ Agent Canvas is part of a multi-repository OpenHands system. In the RAN port, th
 
 | Repository | Responsibility |
 |---|---|
-| [`Naxp/ran-openhands`](https://github.com/Naxp/ran-openhands) (this repo) | RAN port of the Agent Canvas frontend, user-facing control center, backend selection, and local-stack orchestration. |
+| [`Naxp/OpenHands`](https://github.com/Naxp/OpenHands) (this repo) | RAN port of the Agent Canvas frontend, user-facing control center, backend selection, and local-stack orchestration. |
 | [`OpenHands/OpenHands`](https://github.com/OpenHands/OpenHands) (upstream) | Upstream source this port tracks; PRs for general product behavior belong here, not in the port. |
 | [`OpenHands/software-agent-sdk`](https://github.com/OpenHands/software-agent-sdk) | Python SDK, Agent Server, agents, tools, conversations, workspaces, events, and the canonical server API. |
 | [`OpenHands/typescript-client`](https://github.com/OpenHands/typescript-client) | Browser-compatible TypeScript client for the Agent Server API. |
@@ -132,9 +132,12 @@ The Agent Server API is implemented by the SDK and consumed through the TypeScri
 
 ## Upstream and license
 
-RAN OpenHands is a port of [OpenHands Agent Canvas](https://github.com/OpenHands/OpenHands), distributed under the [MIT License](./LICENSE). The original copyright notice — Copyright © 2025 OpenHands contributors — is retained in full alongside this port's own copyright line, as MIT requires. Upstream attribution and third-party references are recorded in [NOTICE](./NOTICE).
+RAN OpenHands is a port of [OpenHands Agent Canvas](https://github.com/OpenHands/OpenHands). Licensing is split, and both parts live in [LICENSE](./LICENSE):
 
-RAN-authored material in this repository (port branding, packaging, port documentation) is Copyright © 2026 RAN (Robotic AI Ninja).
+- **RAN modifications and additions — proprietary.** Everything RAN authored after the 2026-09-19 fork date (port branding, port packaging, port documentation, and RAN source changes) is Copyright © 2026 RAN (Robotic AI Ninja), all rights reserved. Unauthorized copying, distribution, or modification of that new code is prohibited.
+- **Upstream OpenHands Agent Canvas — MIT.** The upstream notice (Copyright © 2025 OpenHands contributors) and the MIT permission notice are retained in full, as the MIT License requires, and continue to govern the upstream software this port builds on.
+
+Upstream attribution and third-party references are recorded in [NOTICE](./NOTICE).
 
 Upstream product naming that appears in code, environment variables, container paths, and published artifacts — for example `@openhands/*` packages, `.openhands` directories, `OH_*` environment variables, and `ghcr.io/openhands/*` images — is functional upstream surface, not RAN branding, and is intentionally left intact so the port stays buildable and upstream-syncable.
 

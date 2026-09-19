@@ -9,8 +9,8 @@ For the main install options and overall context, see [README.md](./README.md).
 **Prerequisites**: Node.js 24 or later (as declared by `engines.node` in `package.json`), `npm`, `uv` (for running the agent server via `uvx`)
 
 ```powershell
-git clone https://github.com/Naxp/ran-openhands.git
-Set-Location ran-openhands
+git clone https://github.com/Naxp/OpenHands.git
+Set-Location OpenHands
 npm install
 npm run dev
 ```

@@ -5,6 +5,7 @@ import { Plus, Settings } from "lucide-react";
 import { Dropdown } from "#/ui/dropdown/dropdown";
 import { DropdownOption } from "#/ui/dropdown/types";
 import { getLockedCloudHost } from "#/api/agent-server-config";
+import { isManagedHostMode } from "#/api/managed-host-config";
 import { isNoBackend } from "#/api/backend-registry/active-store";
 import { useActiveBackendContext } from "#/contexts/active-backend-context";
 import { useAllCloudOrganizations } from "#/hooks/query/use-cloud-organizations";
@@ -259,10 +260,13 @@ export function BackendSelector({
   }, [onOpenManageBackends, onSelectOption]);
 
   const isLockedToCloud = getLockedCloudHost() !== null;
-  // A cookie-auth (OHE-hosted) Canvas has nothing to add, manage, or
-  // reconnect — its single locked backend is owned by the main-app session.
+  const isManagedHost = isManagedHostMode();
+  // Managed hosts and cookie-auth OHE deployments own their backend identity.
+  // The browser may observe status/select the one supplied backend, but it must
+  // not add, edit, remove, or reconnect host-owned infrastructure.
   const hideBackendFooter =
-    isLockedToCloud && active.backend.authMode === "cookie";
+    isManagedHost ||
+    (isLockedToCloud && active.backend.authMode === "cookie");
 
   const preventDropdownMenuClose = React.useCallback(
     (event: React.SyntheticEvent<HTMLButtonElement>) => {
@@ -461,10 +465,10 @@ export function BackendSelector({
           </StyledTooltip>
         ) : null}
       </div>
-      {addBackendModalOpen ? (
+      {!isManagedHost && addBackendModalOpen ? (
         <AddBackendModal onClose={() => setAddBackendModalOpen(false)} />
       ) : null}
-      {manageBackendsModalOpen ? (
+      {!isManagedHost && manageBackendsModalOpen ? (
         <ManageBackendsModal
           onClose={() => setManageBackendsModalOpen(false)}
         />

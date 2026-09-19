@@ -95,6 +95,7 @@ export function parseArgs(argv = process.argv.slice(2), env = process.env) {
     authRequired: false,
     runtimeServicesInfo: null,
     lockToCloud: null,
+    managedHostConfig: null,
     basePath: "/",
     vscodeBasePath: null,
     // Also settable via the --disable-telemetry flag below.
@@ -140,6 +141,29 @@ export function parseArgs(argv = process.argv.slice(2), env = process.env) {
       case "--lock-to-cloud":
         config.lockToCloud = argv[++i] || null;
         break;
+      case "--managed-host-config": {
+        const raw = argv[++i] || "";
+        let parsed;
+        try {
+          parsed = JSON.parse(raw);
+        } catch {
+          throw new Error(
+            "--managed-host-config must be valid JSON with version: 1.",
+          );
+        }
+        if (
+          typeof parsed !== "object" ||
+          parsed === null ||
+          Array.isArray(parsed) ||
+          parsed.version !== 1
+        ) {
+          throw new Error(
+            "--managed-host-config must be a JSON object with version: 1.",
+          );
+        }
+        config.managedHostConfig = parsed;
+        break;
+      }
       case "--base-path":
         config.basePath = normalizeBasePath(argv[++i]);
         break;
@@ -255,6 +279,10 @@ OPTIONS:
   --lock-to-cloud <cloud-url>  Lock backend setup to a single OpenHands Cloud
                                URL. Hides manual/local backend setup and the
                                custom Cloud URL field in the pre-built frontend.
+  --managed-host-config <json>  Inject versioned, browser-visible host context
+                               for a trusted embedding/BFF. This config must
+                               contain identifiers/presentation context only;
+                               never secrets or downstream service credentials.
   --disable-telemetry          Disable all product telemetry (including the
                                anonymous install event) in the pre-built
                                frontend at runtime, without VITE_DO_NOT_TRACK
@@ -328,6 +356,11 @@ ROUTING:
  *   `agent-server-config.ts` so pre-built frontend bundles can hide manual
  *   backend setup and the custom Cloud URL field at runtime.
  *
+ * - `managedHostConfig`: a versioned, secret-free host contract exposed as
+ *   `window.__AGENT_CANVAS_MANAGED_HOST__`. The RAN managed-host seam reads
+ *   this before backend-registry initialization so the public browser can use
+ *   a same-origin host-owned backend without receiving its downstream API key.
+ *
  * - `basePath`: the path prefix the SPA is mounted under, exposed as
  *   `window.__AGENT_CANVAS_BASE_PATH__` so runtime static assets like locale
  *   files can resolve through the same subpath as the built bundle.
@@ -367,6 +400,7 @@ function makeConfigInjectionScript(
   authRequired,
   runtimeServicesInfo,
   lockToCloud,
+  managedHostConfig,
   basePath,
   vscodeBasePath,
   disableTelemetry,
@@ -413,6 +447,12 @@ function makeConfigInjectionScript(
     );
   }
 
+  if (managedHostConfig) {
+    parts.push(
+      `window.__AGENT_CANVAS_MANAGED_HOST__=${serializeForInlineScript(managedHostConfig)};`,
+    );
+  }
+
   if (basePath && basePath !== "/") {
     parts.push(
       `window.__AGENT_CANVAS_BASE_PATH__=${serializeForInlineScript(basePath)};`,
@@ -447,6 +487,7 @@ async function serveInjectedIndexHtml(
     authRequired,
     runtimeServicesInfo,
     lockToCloud,
+    managedHostConfig,
     basePath,
     vscodeBasePath,
     disableTelemetry,
@@ -464,6 +505,7 @@ async function serveInjectedIndexHtml(
     authRequired,
     runtimeServicesInfo,
     lockToCloud,
+    managedHostConfig,
     basePath,
     vscodeBasePath,
     disableTelemetry,
@@ -480,7 +522,8 @@ async function serveInjectedIndexHtml(
   res.writeHead(200, {
     "Content-Type": "text/html; charset=utf-8",
     "Content-Length": buf.length,
-    "Cache-Control": sessionApiKey ? "no-store" : "no-cache",
+    "Cache-Control":
+      sessionApiKey || managedHostConfig ? "no-store" : "no-cache",
   });
   if (req.method === "HEAD") {
     res.end();
@@ -515,6 +558,7 @@ function needsRuntimeInjection(injectionOpts) {
     injectionOpts.authRequired ||
     injectionOpts.runtimeServicesInfo ||
     injectionOpts.lockToCloud ||
+    injectionOpts.managedHostConfig ||
     injectionOpts.vscodeBasePath ||
     injectionOpts.disableTelemetry ||
     (injectionOpts.basePath && injectionOpts.basePath !== "/"),
@@ -662,6 +706,7 @@ export function startStaticServer(config) {
     authRequired: config.authRequired || false,
     runtimeServicesInfo: config.runtimeServicesInfo || null,
     lockToCloud: config.lockToCloud || null,
+    managedHostConfig: config.managedHostConfig || null,
     basePath: normalizeBasePath(config.basePath),
     vscodeBasePath: config.vscodeBasePath || null,
     disableTelemetry: config.disableTelemetry || false,
@@ -744,6 +789,9 @@ export function startStaticServer(config) {
       }
       if (config.lockToCloud) {
         console.log(`  Backend setup locked to Cloud: ${config.lockToCloud}`);
+      }
+      if (config.managedHostConfig) {
+        console.log("  Managed host mode: enabled");
       }
       console.log("  * (default) -> static files + SPA fallback");
       console.log("");

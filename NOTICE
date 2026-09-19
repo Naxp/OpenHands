@@ -1,0 +1,40 @@
+RAN OpenHands — upstream attribution notice
+===========================================
+
+RAN OpenHands (ran-openhands) is a port of OpenHands Agent Canvas.
+
+  Upstream project : OpenHands Agent Canvas
+  Upstream source  : https://github.com/OpenHands/OpenHands
+  Upstream license : MIT — Copyright © 2025 OpenHands contributors
+  Port base commit : a07364828c8f202e7745c6bce3dcef3915ae7ac1 (upstream main)
+
+This repository carries upstream OpenHands Agent Canvas source, the upstream MIT
+license and copyright notice (see LICENSE), and RAN-authored port branding,
+packaging, and documentation. The upstream notice is preserved verbatim because
+the MIT License requires it to be included in all copies or substantial portions
+of the software.
+
+Upstream identifiers that remain in the codebase
+------------------------------------------------
+
+The following names are functional upstream surface, not RAN branding. They are
+intentionally unchanged so the port stays buildable and can sync with upstream:
+
+  - npm packages:        @openhands/agent-canvas, @openhands/typescript-client,
+                         @openhands/extensions
+  - container images:    ghcr.io/openhands/agent-canvas
+  - on-disk state:       .openhands directories, ~/.openhands
+  - container paths:     /home/openhands/.openhands
+  - environment vars:    OH_* (for example OH_SESSION_API_KEYS_0,
+                         OH_CANVAS_SAFE_STATE_DIR)
+  - upstream services:   docs.openhands.dev, go.openhands.dev
+  - the `agent-canvas` CLI/binary name
+
+RAN-authored material in this repository
+----------------------------------------
+
+  README.md, README.windows.md, docs/README.md, LICENSE (port notice section),
+  this NOTICE, and docs/operations/RAN_OPENHANDS_PORT.md.
+
+Third-party dependencies bundled or fetched by this project (see package.json
+and package-lock.json) remain under their own licenses.

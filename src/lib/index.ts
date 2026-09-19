@@ -5,14 +5,33 @@ export * from "../components/settings";
 export * from "../components/sidebar";
 export * from "../components/terminal";
 export {
+  AgentCanvasHostProvider,
   AgentServerUIProviders,
   AgentServerUIRoot,
   DEFAULT_AGENT_SERVER_ANALYTICS,
+  useAgentCanvasHost,
+  useAgentCanvasHostContext,
+  type AgentCanvasHostBridge,
+  type AgentCanvasHostContextValue,
+  type AgentCanvasHostLifecycleEvent,
+  type AgentCanvasHostLifecycleEventType,
+  type AgentCanvasHostNavigationAction,
+  type AgentCanvasHostNavigationRequest,
+  type AgentCanvasHostNavigationTarget,
   type AgentServerUIAnalyticsConfig,
   type AgentServerUIPostHogAnalyticsConfig,
   type AgentServerUIProvidersProps,
   type AgentServerUIRootProps,
 } from "../components/providers";
+export {
+  getManagedHostConfig,
+  getManagedHostContext,
+  isManagedHostMode,
+  type AgentCanvasManagedHostActor,
+  type AgentCanvasManagedHostBackend,
+  type AgentCanvasManagedHostConfig,
+  type AgentCanvasManagedHostContext,
+} from "../api/managed-host-config";
 export {
   createAgentServerQueryClient,
   getDefaultQueryClient,

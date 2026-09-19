@@ -9,3 +9,15 @@ export {
   AgentServerUIRoot,
   type AgentServerUIRootProps,
 } from "./agent-server-ui-root";
+export {
+  AgentCanvasHostProvider,
+  useAgentCanvasHost,
+  useAgentCanvasHostContext,
+  type AgentCanvasHostBridge,
+  type AgentCanvasHostContextValue,
+  type AgentCanvasHostLifecycleEvent,
+  type AgentCanvasHostLifecycleEventType,
+  type AgentCanvasHostNavigationAction,
+  type AgentCanvasHostNavigationRequest,
+  type AgentCanvasHostNavigationTarget,
+} from "./agent-canvas-host-provider";

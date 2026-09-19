@@ -18,6 +18,10 @@ import { useHydrateFreeModels } from "#/hooks/query/use-free-models";
 import type { TelemetryConfig } from "#/services/telemetry";
 import { TelemetryProvider } from "./telemetry-provider";
 import {
+  AgentCanvasHostProvider,
+  type AgentCanvasHostBridge,
+} from "./agent-canvas-host-provider";
+import {
   AgentServerUIRoot,
   type AgentServerUIRootProps,
 } from "./agent-server-ui-root";
@@ -44,6 +48,7 @@ export interface AgentServerUIProvidersProps extends Pick<
   analytics?: AgentServerUIAnalyticsConfig;
   i18n?: I18nInstance;
   withStyleRoot?: boolean;
+  host?: AgentCanvasHostBridge;
 }
 
 /**
@@ -67,6 +72,7 @@ export function AgentServerUIProviders({
   styleOverrides,
   theme,
   withStyleRoot = true,
+  host,
 }: AgentServerUIProvidersProps) {
   const resolvedQueryClient = React.useMemo(
     () => queryClient ?? getDefaultQueryClient(),
@@ -130,7 +136,9 @@ export function AgentServerUIProviders({
   return (
     <I18nextProvider i18n={resolvedI18n} defaultNS={OPENHANDS_I18N_NAMESPACE}>
       <QueryClientProvider client={resolvedQueryClient}>
-        <ActiveBackendProvider>{wrappedContent}</ActiveBackendProvider>
+        <AgentCanvasHostProvider value={host}>
+          <ActiveBackendProvider>{wrappedContent}</ActiveBackendProvider>
+        </AgentCanvasHostProvider>
       </QueryClientProvider>
     </I18nextProvider>
   );

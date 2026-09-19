@@ -13,6 +13,7 @@ import {
 } from "./components/providers";
 import { waitForI18n } from "./i18n";
 import { shouldStartMockWorker } from "./mocks/should-start-mock-worker";
+import { isManagedHostMode } from "./api/managed-host-config";
 
 async function prepareApp() {
   await waitForI18n();
@@ -38,7 +39,9 @@ prepareApp().then(() =>
       document,
       <StrictMode>
         <AgentServerUIProviders
-          analytics={DEFAULT_AGENT_SERVER_ANALYTICS}
+          analytics={
+            isManagedHostMode() ? false : DEFAULT_AGENT_SERVER_ANALYTICS
+          }
           withStyleRoot={false}
         >
           <HydratedRouter />

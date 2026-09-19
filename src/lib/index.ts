@@ -6,6 +6,8 @@ export * from "../components/sidebar";
 export * from "../components/terminal";
 export {
   AgentCanvasHostProvider,
+  AGENT_CANVAS_HOST_LIFECYCLE_EVENT,
+  AGENT_CANVAS_HOST_NAVIGATION_EVENT,
   AgentServerUIProviders,
   AgentServerUIRoot,
   DEFAULT_AGENT_SERVER_ANALYTICS,

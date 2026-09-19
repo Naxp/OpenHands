@@ -11,6 +11,8 @@ export {
 } from "./agent-server-ui-root";
 export {
   AgentCanvasHostProvider,
+  AGENT_CANVAS_HOST_LIFECYCLE_EVENT,
+  AGENT_CANVAS_HOST_NAVIGATION_EVENT,
   useAgentCanvasHost,
   useAgentCanvasHostContext,
   type AgentCanvasHostBridge,

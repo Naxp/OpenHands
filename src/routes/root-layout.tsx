@@ -25,6 +25,7 @@ import { ReactRouterNavigationProvider } from "./react-router-navigation-provide
 import { OnboardingHost } from "#/components/features/onboarding";
 import { isOnboardingPreviewActive } from "#/components/features/onboarding/onboarding-preview";
 import { CanvasExtensionsRuntimeProvider } from "#/components/features/canvas-extensions/canvas-extensions-runtime";
+import { AgentCanvasHostLifecycleObserver } from "#/components/providers/agent-canvas-host-lifecycle-observer";
 
 const EnvironmentSwitchOverlay = React.lazy(
   () => import("#/components/features/backends/environment-switch-overlay"),
@@ -111,6 +112,7 @@ export default function MainApp() {
 
   return (
     <ReactRouterNavigationProvider>
+      <AgentCanvasHostLifecycleObserver />
       <CanvasExtensionsRuntimeProvider>
         <SidebarMobileNavProvider>
           <div

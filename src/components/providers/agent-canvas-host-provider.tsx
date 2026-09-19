@@ -1,6 +1,7 @@
 import React from "react";
 import {
   getManagedHostContext,
+  isManagedHostMode,
   type AgentCanvasManagedHostContext,
 } from "#/api/managed-host-config";
 
@@ -71,13 +72,33 @@ export interface AgentCanvasHostContextValue {
   emitLifecycleEvent: (event: AgentCanvasHostLifecycleEvent) => void;
 }
 
-const noopLifecycle = () => {};
+export const AGENT_CANVAS_HOST_NAVIGATION_EVENT =
+  "agent-canvas:host-navigation";
+export const AGENT_CANVAS_HOST_LIFECYCLE_EVENT =
+  "agent-canvas:host-lifecycle";
+
+function dispatchManagedHostEvent<T>(name: string, detail: T): void {
+  if (!isManagedHostMode() || typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(name, { detail }));
+}
+
+function defaultManagedHostNavigate(
+  request: AgentCanvasHostNavigationRequest,
+): void {
+  dispatchManagedHostEvent(AGENT_CANVAS_HOST_NAVIGATION_EVENT, request);
+}
+
+function defaultManagedHostLifecycle(
+  event: AgentCanvasHostLifecycleEvent,
+): void {
+  dispatchManagedHostEvent(AGENT_CANVAS_HOST_LIFECYCLE_EVENT, event);
+}
 
 const AgentCanvasHostContext =
   React.createContext<AgentCanvasHostContextValue>({
     context: null,
     navigate: null,
-    emitLifecycleEvent: noopLifecycle,
+    emitLifecycleEvent: defaultManagedHostLifecycle,
   });
 
 export function AgentCanvasHostProvider({
@@ -92,8 +113,10 @@ export function AgentCanvasHostProvider({
   const resolved = React.useMemo<AgentCanvasHostContextValue>(
     () => ({
       context: value?.context === undefined ? runtimeContext : value.context,
-      navigate: value?.navigate ?? null,
-      emitLifecycleEvent: value?.onLifecycleEvent ?? noopLifecycle,
+      navigate:
+        value?.navigate ?? (isManagedHostMode() ? defaultManagedHostNavigate : null),
+      emitLifecycleEvent:
+        value?.onLifecycleEvent ?? defaultManagedHostLifecycle,
     }),
     [runtimeContext, value?.context, value?.navigate, value?.onLifecycleEvent],
   );

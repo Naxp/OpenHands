@@ -8,6 +8,8 @@ import {
 import { useNavigation } from "#/context/navigation-context";
 import { I18nKey } from "#/i18n/declaration";
 import { ExecutionStatus } from "#/types/agent-server/core";
+import { useActiveBackend } from "#/contexts/active-backend-context";
+import { useAgentCanvasHost } from "#/components/providers/agent-canvas-host-provider";
 import {
   pauseConversation,
   patchConversationInCache,
@@ -17,6 +19,8 @@ export const useUnifiedPauseConversation = () => {
   const { t } = useTranslation("openhands");
   const queryClient = useQueryClient();
   const { conversationId: currentConversationId, navigate } = useNavigation();
+  const { backend } = useActiveBackend();
+  const { emitLifecycleEvent } = useAgentCanvasHost();
 
   return useMutation({
     mutationKey: ["stop-conversation"],
@@ -63,6 +67,12 @@ export const useUnifiedPauseConversation = () => {
       patchConversationInCache(queryClient, variables.conversationId, {
         execution_status: ExecutionStatus.PAUSED,
         sandbox_status: "PAUSED",
+      });
+
+      emitLifecycleEvent({
+        type: "conversation_stopped",
+        conversationId: variables.conversationId,
+        backendId: backend.id,
       });
 
       if (currentConversationId === variables.conversationId) {

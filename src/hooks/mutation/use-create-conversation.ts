@@ -28,6 +28,7 @@ import {
   toPluginCoordinates,
   type WorkspaceMode,
 } from "#/api/conversation-metadata-store";
+import { useAgentCanvasHost } from "#/components/providers/agent-canvas-host-provider";
 
 export interface CreateConversationVariables {
   query?: string;
@@ -62,6 +63,7 @@ interface CreateConversationResponse {
 export const useCreateConversation = () => {
   const queryClient = useQueryClient();
   const { trackConversationCreated } = useTracking();
+  const { emitLifecycleEvent } = useAgentCanvasHost();
   // Cache-warm on the home page (the profile picker reads the same query).
   // Stamped onto the conversation at creation so the switcher can show the
   // exact profile even when several profiles share a model (#1082).
@@ -373,6 +375,12 @@ export const useCreateConversation = () => {
         agentType: variables.agentType,
         hasParentConversation: !!variables.parentConversationId,
         entryPoint: variables.entryPoint,
+      });
+
+      emitLifecycleEvent({
+        type: "conversation_created",
+        conversationId: data.conversation_id,
+        backendId: backend.id,
       });
 
       // Invalidate (rather than remove) so the existing paginated list stays

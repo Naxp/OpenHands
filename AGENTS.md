@@ -1,3 +1,22 @@
+# RAN engine-fork overlay
+
+This repository is `Naxp/OpenHands`, the RAN-maintained **Agent Canvas engine fork**.
+
+- Product/master authority for RAN OpenHands and `oh.ranstudio.site` is `Naxp/ran-openhands`.
+- This fork tracks `OpenHands/OpenHands` and should carry only compatibility changes that must live inside Agent Canvas.
+- RAN Identity verification, Command/Central adapters, AI Hub service secrets, Event Gateway signing/outbox, CommitCrow/Security workflow policy, RCommand deployment execution, and BigDog deployment configuration belong in `Naxp/ran-openhands`, not here.
+- Read `docs/operations/RAN_OPENHANDS_PORT.md` before RAN-specific work.
+- The canonical fork requirement contract is `Naxp/ran-openhands/docs/architecture/ENGINE_FORK_CONTRACT.md`.
+- Preserve upstream functional identifiers and keep changes additive/narrow where practical so upstream synchronization remains manageable.
+- Direct commits to `main` are the normal RAN workflow when the current instruction authorizes source changes; do not create branches/PRs unless explicitly requested.
+- Re-read current remote `main` before every write and independently verify the landed remote after each commit.
+- There is no RAN mandate to add/run broad automated test suites. Do not expand or run them as a default gate unless explicitly requested; do not delete inherited upstream tests merely because RAN does not use them as a gate.
+- Git/source completion is not deployment proof.
+
+The upstream repository notes below still govern Agent Canvas implementation details unless this overlay or a newer explicit RAN instruction narrows them.
+
+---
+
 # Repository Notes
 
 ## General

@@ -51,6 +51,7 @@ import {
   applyColorTheme,
   readPersistedColorTheme,
 } from "#/themes/color-themes";
+import { isManagedHostMode } from "#/api/managed-host-config";
 
 /** Applies the persisted color-theme palette to document.body on mount. */
 function ColorThemeApplier() {
@@ -157,6 +158,41 @@ function MissingAgentServerScreen() {
     </main>
   );
 }
+function ManagedHostUnavailableScreen() {
+  const queryClient = useQueryClient();
+
+  const retryConnection = React.useCallback(() => {
+    clearCachedAgentServerInfo();
+    void queryClient.invalidateQueries({
+      queryKey: QUERY_KEYS.WEB_CLIENT_CONFIG,
+    });
+  }, [queryClient]);
+
+  return (
+    <main
+      data-testid="managed-host-unavailable-screen"
+      className="min-h-screen bg-base px-6 py-10 text-white"
+    >
+      <div className="mx-auto flex min-h-[70vh] max-w-xl items-center justify-center">
+        <div className="w-full rounded-2xl border border-[var(--oh-border)] bg-[var(--oh-surface)] p-6 shadow-2xl">
+          <h1 className="text-lg font-semibold">Workspace connection unavailable</h1>
+          <p className="mt-2 text-sm text-[var(--oh-text-secondary)]">
+            This Agent Canvas workspace is managed by its host. Reconnect through
+            the host session instead of entering an Agent Server API key here.
+          </p>
+          <button
+            type="button"
+            onClick={retryConnection}
+            className="mt-5 inline-flex cursor-pointer items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-black"
+          >
+            Retry connection
+          </button>
+        </div>
+      </div>
+    </main>
+  );
+}
+
 function FirstRunOnboardingScreen({ onClose }: { onClose: () => void }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -227,6 +263,8 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function App() {
+  const managedHost = isManagedHostMode();
+
   // Flag-based gate: in public mode (VITE_AUTH_REQUIRED=true) with no
   // session key yet, show the auth screen immediately — no network
   // round-trip needed.
@@ -240,7 +278,7 @@ export default function App() {
   // an API key — let the normal /server_info probe validate it instead.
   const bakedKeyMissing = isAuthRequiredAndMissing();
   const hasRegisteredKey = Boolean(getEffectiveLocalBackend()?.apiKey);
-  const authMissing = bakedKeyMissing && !hasRegisteredKey;
+  const authMissing = !managedHost && bakedKeyMissing && !hasRegisteredKey;
   const { active } = useActiveBackendContext();
   const queryClient = useQueryClient();
   // In locked-to-Cloud mode the only valid backend is a Cloud backend whose
@@ -280,12 +318,15 @@ export default function App() {
   // active suppresses reopen flicker. (The flag is only honored when the
   // active backend really is the locked Cloud host, so the stale-flag bypass
   // concerns above don't apply here.)
-  const shouldCheckMainAppAuth = shouldUseMainAppCookieAuth();
-  const showFirstRunOnboarding = isLockedToCloud
-    ? !shouldCheckMainAppAuth &&
-      (!isActiveLockedCloudBackend ||
-        (lockedCloudAuthMode !== "cookie" && !onboardingCompleted))
-    : !onboardingCompleted;
+  const shouldCheckMainAppAuth =
+    !managedHost && shouldUseMainAppCookieAuth();
+  const showFirstRunOnboarding = managedHost
+    ? false
+    : isLockedToCloud
+      ? !shouldCheckMainAppAuth &&
+        (!isActiveLockedCloudBackend ||
+          (lockedCloudAuthMode !== "cookie" && !onboardingCompleted))
+      : !onboardingCompleted;
   const mainAppAuth = useQuery({
     queryKey: QUERY_KEYS.MAIN_APP_COOKIE_AUTH,
     queryFn: authenticateWithMainAppCookie,
@@ -365,6 +406,17 @@ export default function App() {
     (cookieSessionMaybeExpired && mainAppAuth.isFetching)
   ) {
     return <AgentServerBootstrapLoading />;
+  }
+
+  // Managed hosts own browser authentication and downstream Agent Server
+  // credentials. Never convert a host/BFF auth or reachability failure into an
+  // Agent Server API-key prompt or editable backend recovery flow.
+  if (
+    managedHost &&
+    (isAgentServerAuthError(config.error) ||
+      isAgentServerUnavailableError(config.error))
+  ) {
+    return <ManagedHostUnavailableScreen />;
   }
 
   // No key at all after onboarding was skipped/completed → auth screen.

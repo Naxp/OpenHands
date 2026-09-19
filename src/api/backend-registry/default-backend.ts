@@ -4,6 +4,12 @@ import {
   getCookieAuthCloudHost,
   getLockedCloudHost,
 } from "../agent-server-config";
+import {
+  getManagedHostBackendBaseUrl,
+  getManagedHostBackendId,
+  getManagedHostBackendName,
+  isManagedHostMode,
+} from "../managed-host-config";
 import type { Backend } from "./types";
 
 /**
@@ -18,6 +24,30 @@ export const SEEDED_DEFAULT_BACKEND_ID = "default-local";
 export const DEFAULT_LOCAL_BACKEND_NAME = "Local";
 export const LOCKED_CLOUD_BACKEND_ID = "locked-cloud";
 export const LOCKED_CLOUD_BACKEND_NAME = "OpenHands Cloud";
+
+/**
+ * Host-owned local-protocol backend used by trusted embedding/BFF deployments.
+ *
+ * The browser intentionally carries no Agent Server API key. Requests target
+ * the browser-facing host URL (same-origin by default), and that host is
+ * responsible for authenticating the user and attaching any private downstream
+ * service credential.
+ */
+export function makeManagedHostBackend(): Backend | null {
+  if (!isManagedHostMode()) return null;
+
+  const host = getManagedHostBackendBaseUrl();
+  if (!host) return null;
+
+  return {
+    id: getManagedHostBackendId(),
+    name: getManagedHostBackendName(),
+    host,
+    apiKey: "",
+    kind: "local",
+    authMode: "managed",
+  };
+}
 
 export function makeLockedCloudBackend(): Backend | null {
   if (!getLockedCloudHost()) return null;
@@ -37,7 +67,11 @@ export function makeLockedCloudBackend(): Backend | null {
 
 /**
  * Construct the default local backend from environment/runtime config.
- * Returns null unless both a backend location and API key are available.
+ *
+ * Managed-host deployments are the exception to the standalone API-key rule:
+ * their browser-facing backend is host-owned and intentionally carries no API
+ * key because the same-origin BFF supplies private downstream authentication.
+ * Standalone deployments still require both a backend location and API key.
  *
  * Used as the seed entry written to `openhands-backends` on first load;
  * if it returns null, onboarding is responsible for collecting backend
@@ -51,6 +85,9 @@ export function makeLockedCloudBackend(): Backend | null {
  * recovery modal with a disconnected Local entry.
  */
 export function makeDefaultLocalBackend(): Backend | null {
+  const managedBackend = makeManagedHostBackend();
+  if (managedBackend) return managedBackend;
+
   // Locked-to-Cloud deployments must never auto-seed a Local backend —
   // see the docblock above.
   if (getLockedCloudHost()) return null;

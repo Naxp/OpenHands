@@ -2,6 +2,7 @@ import {
   SEEDED_DEFAULT_BACKEND_ID,
   makeDefaultLocalBackend,
   makeLockedCloudBackend,
+  makeManagedHostBackend,
 } from "./default-backend";
 import type {
   Backend,
@@ -18,7 +19,12 @@ function isValidKind(value: unknown): value is BackendKind {
 }
 
 function isValidAuthMode(value: unknown): value is BackendAuthMode {
-  return value === undefined || value === "api-key" || value === "cookie";
+  return (
+    value === undefined ||
+    value === "api-key" ||
+    value === "cookie" ||
+    value === "managed"
+  );
 }
 
 function isValidBackend(value: unknown): value is Backend {
@@ -94,6 +100,12 @@ function syncLauncherDefaultLocalBackend(backends: Backend[]): Backend[] {
 
 export function writeStoredBackends(backends: Backend[]): void {
   if (typeof window === "undefined") return;
+
+  // A managed backend is runtime authority owned by the embedding host. Never
+  // overwrite the developer's standalone backend registry with that ephemeral
+  // host projection.
+  if (makeManagedHostBackend()) return;
+
   try {
     window.localStorage.setItem(BACKENDS_STORAGE_KEY, JSON.stringify(backends));
   } catch {
@@ -105,6 +117,9 @@ export function readStoredBackends(): Backend[] {
   if (typeof window === "undefined") return [];
 
   try {
+    const managedBackend = makeManagedHostBackend();
+    if (managedBackend) return [managedBackend];
+
     const lockedCloudBackend = makeLockedCloudBackend();
     if (lockedCloudBackend) {
       writeStoredBackends([lockedCloudBackend]);
@@ -205,6 +220,11 @@ function removeStorageItem(storage: Storage | undefined, key: string): void {
 export function readStoredActiveBackend(): BackendSelection | null {
   if (typeof window === "undefined") return null;
 
+  const managedBackend = makeManagedHostBackend();
+  if (managedBackend) {
+    return { backendId: managedBackend.id, orgId: null };
+  }
+
   // Active backend is tab-scoped so reloading tab A does not adopt tab B's
   // backend. localStorage remains a last-used fallback for fresh tabs and old
   // persisted state.
@@ -222,6 +242,10 @@ export function writeStoredActiveBackend(
   selection: BackendSelection | null,
 ): void {
   if (typeof window === "undefined") return;
+
+  // Managed mode owns selection server-side. Leave standalone browser state
+  // untouched so exiting managed mode restores the user's normal backends.
+  if (makeManagedHostBackend()) return;
 
   if (!selection) {
     removeStorageItem(window.sessionStorage, ACTIVE_BACKEND_STORAGE_KEY);

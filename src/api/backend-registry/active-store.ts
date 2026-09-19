@@ -1,4 +1,5 @@
 import { getBackendHealthEntry } from "./health-store";
+import { makeManagedHostBackend } from "./default-backend";
 import {
   readStoredActiveBackend,
   readStoredBackends,
@@ -156,12 +157,32 @@ export function getSnapshot(): Snapshot {
 }
 
 export function setActiveSelection(selection: BackendSelection | null): void {
+  const managedBackend = makeManagedHostBackend();
+  if (managedBackend) {
+    snapshot = computeSnapshot(
+      [managedBackend],
+      { backendId: managedBackend.id, orgId: null },
+    );
+    notify();
+    return;
+  }
+
   writeStoredActiveBackend(selection);
   snapshot = computeSnapshot(snapshot.backends, selection);
   notify();
 }
 
 export function setRegisteredBackends(backends: Backend[]): void {
+  const managedBackend = makeManagedHostBackend();
+  if (managedBackend) {
+    snapshot = computeSnapshot(
+      [managedBackend],
+      { backendId: managedBackend.id, orgId: null },
+    );
+    notify();
+    return;
+  }
+
   writeStoredBackends(backends);
 
   let nextSelection = snapshot.selection;

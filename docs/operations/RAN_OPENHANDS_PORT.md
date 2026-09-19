@@ -27,6 +27,24 @@ The product master contract is `Naxp/ran-openhands/docs/architecture/MASTER_PLAN
 
 The fork should continue tracking upstream rather than becoming a permanently pinned snapshot.
 
+
+## P1 managed-host compatibility seam
+
+P1 is source-complete in this engine fork. The compatibility surface is intentionally narrow and generic:
+
+- `src/api/managed-host-config.ts` parses the versioned, browser-visible `window.__AGENT_CANVAS_MANAGED_HOST__` contract. It carries bounded identifiers/presentation context only and must never contain private service credentials.
+- `scripts/static-server.mjs --managed-host-config <json>` injects that contract before application code and marks managed-host index responses `no-store`.
+- managed mode creates one host-owned browser backend using the existing local Agent Server protocol with `authMode: "managed"`, an empty browser API key, and same-origin by default; the BFF remains responsible for private downstream authentication.
+- backend registry storage and in-memory selection are host-authoritative in managed mode. Standalone backend state is left intact so normal Agent Canvas behavior returns when managed mode is absent.
+- first-run onboarding, API-key entry, backend recovery mutation UI, and Add/Manage backend controls are bypassed or hidden for managed hosts. Standalone/local/cloud behavior remains unchanged outside managed mode.
+- `AgentCanvasHostProvider` and `AgentServerUIProviders.host` expose bounded host context plus generic navigation and lifecycle callbacks. The public library surface exports the managed-host context types/getters and host bridge types.
+- prebuilt managed hosting also emits generic `agent-canvas:host-navigation` and `agent-canvas:host-lifecycle` DOM events, so a host does not need RAN URLs or service clients compiled into Agent Canvas.
+- evidence-backed lifecycle observations cover conversation creation, ready, running, stopped, error, and backend degradation/recovery. Candidate-change availability is intentionally not emitted until Canvas has a reliable source for that fact. Workspace close/archive event/action types are available for host-owned UI to invoke without inventing an engine-side business workflow.
+- managed prebuilt hosting disables Agent Canvas telemetry by default through the existing telemetry provider configuration. Library hosts retain the existing explicit `analytics` configuration surface.
+- Event Gateway publication, durable outbox/retry/signing, RAN Identity, Command, CommitCrow, Krypton routing, and deployment authority remain outside this fork in `Naxp/ran-openhands`.
+
+This is a source contract only. Runtime behavior still requires a later light acceptance pass in the owning product/deployment phase.
+
 ## RAN changes allowed here
 
 Prefer the smallest practical compatibility surface.

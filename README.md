@@ -1,9 +1,9 @@
 <a name="readme-top"></a>
 
 <div align="center">
-  <h1 align="center" style="border-bottom: none">RAN OpenHands</h1>
+  <h1 align="center" style="border-bottom: none">RAN OpenHands Engine Fork</h1>
   <p align="center">
-    <strong>The RAN ecosystem port of OpenHands Agent Canvas — a self-hosted developer control center for coding agents and automations.</strong>
+    <strong>The RAN-maintained Agent Canvas engine fork used by the RAN OpenHands product.</strong>
   </p>
   <p align="center">
     Run OpenHands, Claude Code, Codex, Gemini, or any ACP-compatible agent across local, remote, and cloud backends.
@@ -18,7 +18,7 @@
 </div>
 <hr>
 
-**`ran-openhands`** is the RAN (Robotic AI Ninja) ecosystem port of [OpenHands Agent Canvas](https://github.com/OpenHands/OpenHands). It turns coding agents into a self-hosted, always-on engineering team: a developer control center for starting conversations and automating everyday tasks — like generating reports that publish to Slack, or automatically decomposing GitHub issues into tasks.
+**`Naxp/OpenHands`** is the RAN-maintained engine fork of [OpenHands Agent Canvas](https://github.com/OpenHands/OpenHands). The RAN product, website/BFF, integration authority, deployment contract, and master work state live separately in [`Naxp/ran-openhands`](https://github.com/Naxp/ran-openhands). This repository stays close to upstream and carries only compatibility changes that must live inside Agent Canvas.
 
 It runs locally on your machine by default, but can connect to multiple “agent backends”, e.g. running agents in Docker containers, on VMs, or within your company infrastructure. You can optionally choose to run agents on OpenHands Cloud or OpenHands Enterprise infrastructure.
 
@@ -35,16 +35,17 @@ RAN OpenHands runs the open source OpenHands agent out-of-the-box, but can use a
 
 Feature links above point at the [upstream OpenHands documentation](https://docs.openhands.dev); see [`docs/README.md`](./docs/README.md) for the documentation shipped with this port.
 
-## What this port is
+## Repository role
 
-- This repository (`Naxp/OpenHands`) is the **RAN ecosystem port** of OpenHands Agent Canvas, branded `ran-openhands`.
-- The application code is upstream OpenHands Agent Canvas, carried at upstream `main`. RAN branding, packaging, and RAN ecosystem integration live in this repository rather than in the upstream project.
+- This repository (`Naxp/OpenHands`) is the **RAN-maintained Agent Canvas engine fork**.
+- Product/master authority is [`Naxp/ran-openhands`](https://github.com/Naxp/ran-openhands), which owns `oh.ranstudio.site`, the RAN BFF/control gateway, ecosystem integrations, deployment contracts, and durable work state.
+- The engine code remains intentionally upstream-shaped. Put RAN-specific business logic in `ran-openhands` unless the behavior must live inside Agent Canvas to expose a clean host/compatibility seam.
 - RAN-authored modifications and additions are proprietary; the upstream MIT license covering OpenHands Agent Canvas is retained in full. Both are in [LICENSE](./LICENSE), with attribution in [NOTICE](./NOTICE). See [Upstream and license](#upstream-and-license).
-- Upstream sync and port conventions are recorded in [`docs/operations/RAN_OPENHANDS_PORT.md`](./docs/operations/RAN_OPENHANDS_PORT.md).
+- Upstream sync and fork conventions are recorded in [`docs/operations/RAN_OPENHANDS_PORT.md`](./docs/operations/RAN_OPENHANDS_PORT.md).
 
 ## Quickstart
 
-You can install RAN OpenHands to run agents on any machine: on your laptop, on a dedicated computer like a Mac Mini, or on a server in the cloud.
+You can run this RAN engine fork on any development machine: on your laptop, on dedicated hardware, or on a server. The production RAN product is composed and commissioned from `Naxp/ran-openhands`.
 
 The most powerful way to run it is on a server in the cloud. This allows your agents to continue running even when your laptop is shut, and makes it easier to trigger your agents through third-party services like Slack, GitHub, and Datadog. See [SELF_HOSTING.md](docs/SELF_HOSTING.md) for details, especially with respect to security hardening.
 
@@ -69,7 +70,7 @@ The `npm run dev` stack starts the full local environment for this checkout. You
 ### Option 2: With a Docker Sandbox
 
 > [!NOTE]
-> The published container image (`ghcr.io/openhands/agent-canvas`) is an **upstream OpenHands artifact** and contains upstream Agent Canvas, not this port. RAN OpenHands currently ships as source from this repository (Option 1).
+> The published container image (`ghcr.io/openhands/agent-canvas`) is an **upstream OpenHands artifact** and contains upstream Agent Canvas, not this RAN engine fork. This fork currently ships from source unless a RAN-owned image is explicitly commissioned later.
 
 **Prerequisites**:
 
@@ -93,7 +94,7 @@ docker run -it --rm \
 
 The agent will be able to access any project under `PROJECTS_PATH`.
 
-To build a container from this port's source instead, use [`docker/Dockerfile`](./docker/Dockerfile) locally.
+To build a container from this engine fork's source instead, use [`docker/Dockerfile`](./docker/Dockerfile) locally.
 
 ---
 
@@ -101,7 +102,7 @@ Access the UI at [http://localhost:8000](http://localhost:8000) for the source l
 
 # Architecture
 
-RAN OpenHands is powered by the [OpenHands Agent Server](https://github.com/OpenHands/software-agent-sdk/tree/main/openhands-agent-server/openhands/agent_server), a REST API for running multiple agents on a single machine. Each Agent Server runs on a single host/port; the RAN OpenHands frontend can connect to multiple Agent Servers and easily flip between them.
+Agent Canvas in this engine fork is powered by the [OpenHands Agent Server](https://github.com/OpenHands/software-agent-sdk/tree/main/openhands-agent-server/openhands/agent_server), a REST API for running multiple agents on a single machine. The RAN production architecture places private Agent Server backends behind the `ran-openhands` control gateway rather than exposing reusable backend credentials to the public browser.
 
 You can run an Agent Server anywhere:
 
@@ -116,12 +117,13 @@ The Agent Server is often paired with an [Automation Server](https://github.com/
 
 ### Repository boundaries
 
-Agent Canvas is part of a multi-repository OpenHands system. In the RAN port, this checkout stays the frontend/control-center layer — changes should go to the repository that owns the behavior:
+Agent Canvas is part of a multi-repository OpenHands system. In RAN, this checkout is the engine layer only — changes should go to the repository that owns the behavior:
 
 | Repository | Responsibility |
 |---|---|
-| [`Naxp/OpenHands`](https://github.com/Naxp/OpenHands) (this repo) | RAN port of the Agent Canvas frontend, user-facing control center, backend selection, and local-stack orchestration. |
-| [`OpenHands/OpenHands`](https://github.com/OpenHands/OpenHands) (upstream) | Upstream source this port tracks; PRs for general product behavior belong here, not in the port. |
+| [`Naxp/ran-openhands`](https://github.com/Naxp/ran-openhands) | RAN OpenHands product authority: website/BFF, RAN integrations, deployment composition, architecture and work state. |
+| [`Naxp/OpenHands`](https://github.com/Naxp/OpenHands) (this repo) | RAN-maintained Agent Canvas engine fork and narrow host-compatibility surface. |
+| [`OpenHands/OpenHands`](https://github.com/OpenHands/OpenHands) (upstream) | Upstream source this fork tracks; general upstream product behavior belongs upstream. |
 | [`OpenHands/software-agent-sdk`](https://github.com/OpenHands/software-agent-sdk) | Python SDK, Agent Server, agents, tools, conversations, workspaces, events, and the canonical server API. |
 | [`OpenHands/typescript-client`](https://github.com/OpenHands/typescript-client) | Browser-compatible TypeScript client for the Agent Server API. |
 | [`OpenHands/automation`](https://github.com/OpenHands/automation) | Automation definitions, scheduling, webhooks, run history, and dispatching. |
@@ -132,7 +134,7 @@ The Agent Server API is implemented by the SDK and consumed through the TypeScri
 
 ## Upstream and license
 
-RAN OpenHands is a port of [OpenHands Agent Canvas](https://github.com/OpenHands/OpenHands). Licensing is split, and both parts live in [LICENSE](./LICENSE):
+This RAN engine fork is based on [OpenHands Agent Canvas](https://github.com/OpenHands/OpenHands). Licensing is split, and both parts live in [LICENSE](./LICENSE):
 
 - **RAN modifications and additions — proprietary.** Everything RAN authored after the 2026-09-19 fork date (port branding, port packaging, port documentation, and RAN source changes) is Copyright © 2026 RAN (Robotic AI Ninja), all rights reserved. Unauthorized copying, distribution, or modification of that new code is prohibited.
 - **Upstream OpenHands Agent Canvas — MIT.** The upstream notice (Copyright © 2025 OpenHands contributors) and the MIT permission notice are retained in full, as the MIT License requires, and continue to govern the upstream software this port builds on.
@@ -144,7 +146,7 @@ Upstream product naming that appears in code, environment variables, container p
 ## More documentation
 
 - [Documentation index](./docs/README.md)
-- [Port notes](./docs/operations/RAN_OPENHANDS_PORT.md)
+- [Engine-fork notes](./docs/operations/RAN_OPENHANDS_PORT.md)
 - [Architecture overview](./docs/architecture.md)
 - [Development guide](./docs/DEVELOPMENT.md)
 - [Self-hosting guide](./docs/SELF_HOSTING.md)

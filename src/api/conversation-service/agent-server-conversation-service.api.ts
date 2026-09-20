@@ -40,6 +40,7 @@ import {
 import {
   DirectConversationInfo,
   assertSubscriptionAuthReady,
+  buildStartConversationRequestForManagedProfile,
   buildStartConversationRequestWithEncryptedSettings,
   buildStartPlanningConversationRequestWithEncryptedSettings,
   emptyHooksResponse,
@@ -53,6 +54,7 @@ import {
   NoBackendAvailableError,
 } from "../agent-server-client-options";
 import SettingsService from "../settings-service/settings-service.api";
+import { isManagedHostMode } from "../managed-host-config";
 import { getTelemetryDistinctId } from "../../services/telemetry";
 import {
   ConversationMetadata,
@@ -536,8 +538,14 @@ class AgentServerConversationService {
     const resolvedWorkspaceMode =
       workspaceMode ?? (workingDirOverride ? "local_repo" : "new_worktree");
 
-    // Use encrypted settings to avoid exposing secrets in the browser
-    const payload = await buildStartConversationRequestWithEncryptedSettings({
+    const managedHost = isManagedHostMode();
+    if (managedHost && !agentProfileId) {
+      throw new Error(
+        "Managed workspace conversation creation requires an active host-provisioned agent profile.",
+      );
+    }
+
+    const startOptions = {
       settings,
       query: initialUserMsg,
       conversationInstructions,
@@ -551,10 +559,24 @@ class AgentServerConversationService {
       workingDir,
       hooksProjectDir,
       worktree: resolvedWorkspaceMode === "new_worktree",
-      agentProfileId,
       agentProfileKind,
       titleLlmProfile,
-    });
+    };
+
+    // Managed RAN workspaces keep model/provider/service credentials in the
+    // executor-owned Agent Server profile. The browser must never fetch the
+    // upstream local-mode encrypted settings or enumerate saved secrets merely
+    // to start a conversation.
+    const payload =
+      managedHost && agentProfileId
+        ? await buildStartConversationRequestForManagedProfile({
+            ...startOptions,
+            agentProfileId,
+          })
+        : await buildStartConversationRequestWithEncryptedSettings({
+            ...startOptions,
+            agentProfileId,
+          });
 
     const telemetryDistinctId = await getTelemetryDistinctId();
     const data = await new ConversationClient(
@@ -606,6 +628,11 @@ class AgentServerConversationService {
   ): Promise<AppConversation> {
     if (getActiveBackend().backend.kind === "cloud") {
       throw new Error("Local planning conversations require a local backend.");
+    }
+    if (isManagedHostMode()) {
+      throw new Error(
+        "Managed workspace planning requires a host-provisioned planning profile.",
+      );
     }
 
     const [parent] = await this.batchGetAppConversations([

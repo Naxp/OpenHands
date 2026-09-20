@@ -9,6 +9,7 @@ import { Settings, SettingsSchema, SettingsValue } from "#/types/settings";
 import { stringRecord } from "#/utils/mcp-config";
 import type { SkillEnablement } from "#/utils/skill-enablement";
 import { getActiveBackend } from "../backend-registry/active-store";
+import { isManagedHostMode } from "../managed-host-config";
 import {
   fetchCloudConversationSettingsSchema,
   fetchCloudSettings,
@@ -511,6 +512,12 @@ class SettingsService {
     secretsEncrypted: boolean;
     skillEnablement: SkillEnablement;
   }> {
+    if (isManagedHostMode()) {
+      throw new Error(
+        "Managed host mode does not expose encrypted Agent Server settings to the browser.",
+      );
+    }
+
     // Check cache first
     if (isCacheValid() && settingsCache.encrypted) {
       return {

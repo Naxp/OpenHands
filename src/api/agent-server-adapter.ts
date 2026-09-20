@@ -1593,6 +1593,34 @@ export async function assertSubscriptionAuthReady(
   }
 }
 
+export async function buildStartConversationRequestForManagedProfile(options: {
+  settings: Settings;
+  query?: string;
+  conversationInstructions?: string;
+  plugins?: PluginSpec[];
+  conversationId?: string;
+  parentConversationId?: string;
+  workingDir?: string;
+  /** Workspace root for the hooks lookup, not the per-conversation working dir. */
+  hooksProjectDir?: string;
+  worktree?: boolean;
+  agentProfileId: string;
+  agentProfileKind?: AgentKind;
+  titleLlmProfile?: string;
+}): Promise<Record<string, unknown>> {
+  const { default: HooksService } = await import("./hooks-service");
+  const [runtimeServicesInfo, workspaceHookConfig] = await Promise.all([
+    fetchBackendRuntimeServicesInfo(),
+    HooksService.loadWorkspaceHooks(options.hooksProjectDir),
+  ]);
+
+  return buildStartConversationRequest({
+    ...options,
+    runtimeServicesInfo,
+    workspaceHookConfig,
+  });
+}
+
 export async function buildStartConversationRequestWithEncryptedSettings(options: {
   settings: Settings;
   query?: string;

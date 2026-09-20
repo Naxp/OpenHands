@@ -54,7 +54,10 @@ import {
   NoBackendAvailableError,
 } from "../agent-server-client-options";
 import SettingsService from "../settings-service/settings-service.api";
-import { isManagedHostMode } from "../managed-host-config";
+import {
+  getManagedHostContext,
+  isManagedHostMode,
+} from "../managed-host-config";
 import { getTelemetryDistinctId } from "../../services/telemetry";
 import {
   ConversationMetadata,
@@ -523,20 +526,28 @@ class AgentServerConversationService {
     // entry is mutable, so a user can edit it to point at a remote host while
     // its id stays `default-local`.
     const backendHost = getActiveBackend().backend.host;
+    const managedHostContext = getManagedHostContext();
+    const managedWorkingDir = managedHostContext?.workingDir;
     const baseWorkingDir =
       workingDirOverride ??
+      managedWorkingDir ??
       buildConversationWorkingDirForBackend(conversationId, backendHost);
     const workingDir = await resolveAbsoluteAgentServerPath(baseWorkingDir);
-    // The agent-server checks `<project_dir>/.openhands/hooks.json` literally,
-    // so hooks need the workspace root: the per-conversation subdir below it is
-    // created only after this request (#16907). An explicit pick is the root.
-    const hooksProjectDir = workingDirOverride
-      ? workingDir
-      : await resolveAbsoluteAgentServerPath(
-          getWorkspaceRootForBackend(backendHost),
-        );
+    // The agent-server checks `<project_dir>/.openhands/hooks.json` literally.
+    // A trusted managed host already owns the isolation boundary and provides
+    // the exact repository root, so do not create a nested conversation
+    // worktree/subdirectory inside that mounted repository.
+    const hooksProjectDir =
+      workingDirOverride || managedWorkingDir
+        ? workingDir
+        : await resolveAbsoluteAgentServerPath(
+            getWorkspaceRootForBackend(backendHost),
+          );
     const resolvedWorkspaceMode =
-      workspaceMode ?? (workingDirOverride ? "local_repo" : "new_worktree");
+      workspaceMode ??
+      (workingDirOverride || managedWorkingDir
+        ? "local_repo"
+        : "new_worktree");
 
     const managedHost = isManagedHostMode();
     if (managedHost && !agentProfileId) {

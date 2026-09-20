@@ -33,6 +33,8 @@ export interface AgentCanvasManagedHostContext {
   repository?: string;
   branch?: string;
   baseSha?: string;
+  /** Absolute workspace root selected by the trusted host. */
+  workingDir?: string;
   agentProfileId?: string;
   capabilityProfile?: string;
   contextGeneration?: string;
@@ -121,6 +123,9 @@ function parseContext(value: unknown): AgentCanvasManagedHostContext | undefined
       : {}),
     ...(cleanString(context.baseSha, 128)
       ? { baseSha: cleanString(context.baseSha, 128) }
+      : {}),
+    ...(cleanString(context.workingDir, 2048)
+      ? { workingDir: cleanString(context.workingDir, 2048) }
       : {}),
     ...(cleanString(context.agentProfileId, 512)
       ? { agentProfileId: cleanString(context.agentProfileId, 512) }
